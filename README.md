@@ -65,6 +65,14 @@ Skip the wizard and point Sqeli at your existing binaries via ⚙ Settings:
 
 ---
 
+## Images
+
+<img width="521" height="413" alt="image" src="https://github.com/user-attachments/assets/33bcc562-1f03-43eb-bf0e-f0c2a3c25a04" />
+<img width="520" height="401" alt="image" src="https://github.com/user-attachments/assets/79088cd0-7cdb-42eb-8e5c-dd031ae01da0" />
+!<img width="484" height="558" alt="image" src="https://github.com/user-attachments/assets/b033e85e-5345-40cb-96e0-cc6f91442cc5" />
+
+---
+
 ## License
 
 MIT — do whatever you want with it.
