@@ -1,0 +1,81 @@
+# ── Environment & Secrets ──────────────────────────────────────────────────
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ── Sqeli build artifacts ─────────────────────────────────────────────────────
+# PyInstaller temp folder (created by build.py)
+build_tmp/
+
+# Compiled executable
+Sqeli.exe
+
+# Generated .ico (created by build.py from icon_dark.png)
+assets/icon.ico
+
+# PyInstaller spec files (in case one ends up in the root)
+*.spec
+
+# ── User config ───────────────────────────────────────────────────────────────
+# Contains machine-specific binary paths — auto-created on first run
+config.json
+
+# ── User web files ────────────────────────────────────────────────────────────
+# Ignore custom websites dropped into htdocs/, keep default placeholder
+htdocs/*
+
+# ── Downloaded binaries ───────────────────────────────────────────────────────
+# Apache + MariaDB installed by the setup wizard (~200-400 MB, not for repo)
+bin/
+
+# ── IDE / Editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.cursor/
+.windsurf/
+.zed/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# ── Windows ───────────────────────────────────────────────────────────────────
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+
