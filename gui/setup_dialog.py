@@ -12,20 +12,60 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QFont
 
-from core.downloader import InstallWorker
+from pathlib import Path
+
+from core.downloader import InstallWorker, BIN_ROOT
 
 
 # ── Single service install card ───────────────────────────────────────────────
 
 class ServiceInstallCard(QWidget):
-    def __init__(self, service: str, display_name: str, subtitle: str, parent=None):
+    def __init__(self, service: str, display_name: str, subtitle: str, cfg: dict | None = None, parent=None):
         super().__init__(parent)
         self._service = service
+        self._cfg = cfg or {}
         self._worker: InstallWorker | None = None
         self.installed_payload: str | None = None   # binary path (or "bin|data")
 
         self.setObjectName("ServiceCard")
         self._build(display_name, subtitle)
+        self._check_installed()
+
+    def _check_installed(self):
+        """Checks if binary already exists on disk and marks card ready."""
+        if self._service == "apache":
+            cfg_bin = self._cfg.get("apache", {}).get("bin", "")
+            if cfg_bin and Path(cfg_bin).exists():
+                self._mark_installed(cfg_bin.replace("\\", "/"))
+                return
+            candidates = list(BIN_ROOT.glob("apache/*/bin/httpd.exe")) + list(BIN_ROOT.glob("apache/bin/httpd.exe"))
+            if candidates and candidates[0].exists():
+                self._mark_installed(str(candidates[0]).replace("\\", "/"))
+
+        elif self._service == "mysql":
+            cfg_bin = self._cfg.get("mysql", {}).get("bin", "")
+            if cfg_bin and Path(cfg_bin).exists():
+                datadir = self._cfg.get("mysql", {}).get("datadir", "") or str(Path(cfg_bin).parent.parent / "data")
+                self._mark_installed(f"{cfg_bin.replace(chr(92), '/')}|{datadir.replace(chr(92), '/')}")
+                return
+            candidates = list(BIN_ROOT.glob("mysql/*/bin/mysqld.exe")) + list(BIN_ROOT.glob("mysql/bin/mysqld.exe"))
+            if candidates and candidates[0].exists():
+                mysqld = candidates[0]
+                datadir = str(mysqld.parent.parent / "data")
+                self._mark_installed(f"{str(mysqld).replace(chr(92), '/')}|{datadir.replace(chr(92), '/')}")
+
+        elif self._service == "phpmyadmin":
+            php_dir = BIN_ROOT / "php"
+            pma_dir = BIN_ROOT / "phpmyadmin"
+            if php_dir.exists() and pma_dir.exists():
+                self._mark_installed(str(pma_dir).replace("\\", "/"))
+
+    def _mark_installed(self, payload: str):
+        self.installed_payload = payload
+        self._btn.setText("✓  Installed")
+        self._btn.setEnabled(False)
+        self._state_lbl.setText("✓ Ready")
+        self._state_lbl.setStyleSheet("font-size: 11px; color: #22c55e;")
 
     def _build(self, name: str, subtitle: str):
         outer = QVBoxLayout(self)
@@ -202,7 +242,8 @@ class SetupDialog(QDialog):
             "apache",
             "Apache HTTP Server",
             "Latest stable from Apache Lounge (Win64 VS17) — no VC++ runtimes needed.",
-            self,
+            cfg=self._cfg,
+            parent=self,
         )
         root.addWidget(self._apache_card)
 
@@ -211,7 +252,8 @@ class SetupDialog(QDialog):
             "mysql",
             "MariaDB (MySQL-compatible)",
             "Latest stable MariaDB Win64 ZIP — drop-in MySQL replacement, smaller download.",
-            self,
+            cfg=self._cfg,
+            parent=self,
         )
         root.addWidget(self._mysql_card)
 
@@ -220,7 +262,8 @@ class SetupDialog(QDialog):
             "phpmyadmin",
             "phpMyAdmin + PHP 8",
             "Installs PHP 8 (Thread-Safe) & phpMyAdmin, automatically integrated into Apache.",
-            self,
+            cfg=self._cfg,
+            parent=self,
         )
         root.addWidget(self._pma_card)
 
@@ -246,6 +289,7 @@ class SetupDialog(QDialog):
         bottom.addWidget(self._apply_btn)
 
         root.addLayout(bottom)
+        self.on_card_done()
 
     # ── Callbacks from cards ──────────────────────────────────────────────────
 
